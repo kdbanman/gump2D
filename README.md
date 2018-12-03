@@ -1,4 +1,4 @@
-# prey
+# gump2D
 
 An outer-totalistic cellular automata in 2D, like Conway's Life, but with interstitial cells in the style of [gump](https://github.com/kdbanman/gump).
 
