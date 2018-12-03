@@ -9,7 +9,7 @@ int iterationsPerFrame = 1;
 boolean paused = true;
 
 int seedDensity = 100;
-int defaultSeedSize = 50;
+int defaultSeedSize = 51;
 int habSize = 100;
 
 int deadCellColor = 0xFF222222;
@@ -194,8 +194,13 @@ void populateHabitat(int seedSize) {
 
   if (seedEnd - seedStart < seedSize) {
     // Above math always results in even valued start and end due to division flooring, so
-    // get back to the right size if necessary.
-    seedStart -= 1;
+    // get back to the right size if necessary.  Use mod 4 math to decide which direction
+    // to shift the seed.
+    if (seedSize % 4 == 0) {
+      seedStart -= 1;
+    } else {
+      seedStart += 1;
+    }
   }
   println("populating size " + (seedEnd - seedStart) + " from " + seedStart + " to " + seedEnd);
 
