@@ -9,22 +9,25 @@ int iterationsPerFrame = 1;
 boolean paused = true;
 
 int seedDensity = 100;
-int defaultSeedSize = 51;
-int habSize = 100;
+int defaultSeedSize = 61;
+int habSize = 70;
 
 int deadCellColor = 0xFF222222;
-int liveCellColor = 0xFFAEAEAE;
+int liveCellColor = 0x88AEAEAE;
+int backgroundColor = 0xFF000000;
+int transparencyColor = 0x22000000;
 
-int cellWidth = 10;
+int cellWidth = 5;
 int spaceWidth = 20;
 int totalWidth = cellWidth + spaceWidth;
+int renderSize = totalWidth * (habSize / 2);
 
 boolean[][] habitat;
 boolean[][] nextHabitat;
 
 
 void settings() {
-  size(totalWidth * (habSize / 2), totalWidth * (habSize / 2));
+  size(renderSize, renderSize);
 }
 
 void setup() {
@@ -41,6 +44,8 @@ void setup() {
   }
 
   populateHabitat(defaultSeedSize);
+  
+  background(backgroundColor);
 }
 
 void draw() {
@@ -48,41 +53,72 @@ void draw() {
     for (int i = 0; i < iterationsPerFrame; i++) {
       iterateHabitat();
     }
+    fill(transparencyColor);
+    rect(0, 0, renderSize, renderSize);
   }
-
-  background(0);
+  
   for (int i = 0 ; i < habSize ; i++) {
     for (int j = 0 ; j < habSize ; j++) {
       if (isHorizontalCell(i, j)) {
-        fill(deadCellColor);
-        if (isLive(i, j)) fill(liveCellColor);
-        rect(
-          totalWidth * (i + 1) / 2 - spaceWidth,
-          totalWidth * j / 2,
-          spaceWidth,
-          cellWidth
-        );
+        //fill(deadCellColor);
+        if (isLive(i, j)) {
+          fill(liveCellColor);
+          rect(
+            totalWidth * (i + 1) / 2 - spaceWidth,
+            totalWidth * j / 2,
+            spaceWidth,
+            cellWidth
+          );
+        }
       } else if (isVerticalCell(i, j)) {
-        fill(deadCellColor);
-        if (isLive(i,j)) fill(liveCellColor);
-        rect(
-          totalWidth * i / 2,
-          totalWidth * (j + 1) / 2 - spaceWidth,
-          cellWidth,
-          spaceWidth
-        );
+        //fill(deadCellColor);
+        if (isLive(i,j)) {
+          fill(liveCellColor);
+          rect(
+            totalWidth * i / 2,
+            totalWidth * (j + 1) / 2 - spaceWidth,
+            cellWidth,
+            spaceWidth
+          );
+        }
       }
     }
   }
 }
 
 void speedup() {
-  iterationsPerFrame = min(2048, iterationsPerFrame * 2);
-  println("speed up: " + iterationsPerFrame + " ipf");
+  int framerateBefore = framerate;
+  if (iterationsPerFrame == 1){
+    if (framerate == 1) {
+      framerate = 5;
+    } else {
+      framerate = min(60, framerate + 11);
+    }
+    frameRate(framerate);
+  }
+  boolean framerateUnchanged = framerate == framerateBefore;
+  
+  if (framerate == 60 && framerateUnchanged) {
+    iterationsPerFrame = min(2048, iterationsPerFrame * 2);
+  }
+  println("speed up: " + iterationsPerFrame + " ipf @ " + framerate + " fps");
 }
 void speeddown() {
-  iterationsPerFrame = max(1, iterationsPerFrame / 2);
-  println("speed down: " + iterationsPerFrame + " ipf");
+  int framerateBefore = framerate;
+  if (iterationsPerFrame == 1) {
+    if (framerate == 5) {
+      framerate = 1;
+    } else {
+      framerate = max(5, framerate - 11);
+    }
+    frameRate(framerate);
+  }
+  boolean framerateUnchanged = framerate == framerateBefore;
+  
+  if (framerate == 60 && framerateUnchanged) {
+    iterationsPerFrame = max(1, iterationsPerFrame / 2);
+  }
+  println("speed down: " + iterationsPerFrame + " ipf @ " + framerate + " fps");
 }
 
 void keyPressed() {
