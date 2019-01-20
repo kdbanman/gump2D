@@ -12,10 +12,10 @@ int seedDensity = 100;
 int defaultSeedSize = 61;
 int habSize = 70;
 
-int deadCellColor = 0xFF222222;
-int liveCellColor = 0x88AEAEAE;
+int lowpassThreshold = 0x80;
+int deadCellColor = 0x80000000;
+int liveCellColor = 0x80FFFFFF;
 int backgroundColor = 0xFF000000;
-int transparencyColor = 0x22000000;
 
 int cellWidth = 5;
 int spaceWidth = 20;
@@ -44,7 +44,7 @@ void setup() {
   }
 
   populateHabitat(defaultSeedSize);
-  
+
   background(backgroundColor);
 }
 
@@ -53,37 +53,56 @@ void draw() {
     for (int i = 0; i < iterationsPerFrame; i++) {
       iterateHabitat();
     }
-    fill(transparencyColor);
-    rect(0, 0, renderSize, renderSize);
   }
-  
+
   for (int i = 0 ; i < habSize ; i++) {
     for (int j = 0 ; j < habSize ; j++) {
       if (isHorizontalCell(i, j)) {
-        //fill(deadCellColor);
+        fill(deadCellColor);
         if (isLive(i, j)) {
           fill(liveCellColor);
-          rect(
-            totalWidth * (i + 1) / 2 - spaceWidth,
-            totalWidth * j / 2,
-            spaceWidth,
-            cellWidth
-          );
         }
+        rect(
+          totalWidth * (i + 1) / 2 - spaceWidth,
+          totalWidth * j / 2,
+          spaceWidth,
+          cellWidth
+        );
       } else if (isVerticalCell(i, j)) {
-        //fill(deadCellColor);
+        fill(deadCellColor);
         if (isLive(i,j)) {
           fill(liveCellColor);
-          rect(
-            totalWidth * i / 2,
-            totalWidth * (j + 1) / 2 - spaceWidth,
-            cellWidth,
-            spaceWidth
-          );
         }
+        rect(
+          totalWidth * i / 2,
+          totalWidth * (j + 1) / 2 - spaceWidth,
+          cellWidth,
+          spaceWidth
+        );
       }
     }
   }
+}
+
+void decreaseLowpassThreshold() {
+  lowpassThreshold = max(1, lowpassThreshold / 2);
+  applyLowpassThreshold();
+  println("lowpass threshold decreased to " + lowpassThreshold);
+}
+
+void increaseLowpassThreshold() {
+  lowpassThreshold = min(255, lowpassThreshold * 2);
+  applyLowpassThreshold();
+  println("lowpass threshold increased to " + lowpassThreshold);
+}
+
+void applyLowpassThreshold() {
+  liveCellColor = liveCellColor & 0x00FFFFFF
+                | (lowpassThreshold << 24);
+  deadCellColor = deadCellColor & 0x00FFFFFF
+                | (lowpassThreshold << 24);
+  println("live cell color updated to " + hex(liveCellColor));
+  println("dead cell color updated to " + hex(deadCellColor));
 }
 
 void speedup() {
@@ -97,7 +116,7 @@ void speedup() {
     frameRate(framerate);
   }
   boolean framerateUnchanged = framerate == framerateBefore;
-  
+
   if (framerate == 60 && framerateUnchanged) {
     iterationsPerFrame = min(2048, iterationsPerFrame * 2);
   }
@@ -114,7 +133,7 @@ void speeddown() {
     frameRate(framerate);
   }
   boolean framerateUnchanged = framerate == framerateBefore;
-  
+
   if (framerate == 60 && framerateUnchanged) {
     iterationsPerFrame = max(1, iterationsPerFrame / 2);
   }
@@ -135,6 +154,10 @@ void keyPressed() {
       speedup();
     } else if (keyCode == DOWN) {
       speeddown();
+    } else if (keyCode == LEFT) {
+      increaseLowpassThreshold();
+    } else if (keyCode == RIGHT) {
+      decreaseLowpassThreshold();
     }
   }
 }
