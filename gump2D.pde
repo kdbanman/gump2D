@@ -9,8 +9,8 @@ int iterationsPerFrame = 1;
 boolean paused = true;
 
 int seedDensity = 100;
-int defaultSeedSize = 61;
-int habSize = 70;
+int defaultSeedSize = 91;
+int habSize = 100;
 
 int lowpassThreshold = 0x80;
 int deadCellColor = 0x80000000;
