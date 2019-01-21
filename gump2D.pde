@@ -17,7 +17,7 @@ int deadCellColor = 0x80000000;
 int liveCellColor = 0x80FFFFFF;
 int backgroundColor = 0xFF000000;
 
-int cellWidth = 5;
+int cellWidth = 8;
 int spaceWidth = 20;
 int totalWidth = cellWidth + spaceWidth;
 int renderSize = totalWidth * (habSize / 2);
